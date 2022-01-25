@@ -37,6 +37,7 @@ const routeError = (err, req, res, next) => {
   if (process.env.NODE_ENV === 'development') {
     sendErrorDev(err, res);
   } else if (process.env.NODE_ENV === 'production') {
+    // TODO Object copying is not working as expected. Ask about it.
     // let error = { ...err };
     // let error = Object.assign({}, err);
     let error = JSON.parse(JSON.stringify(err));
