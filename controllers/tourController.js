@@ -5,13 +5,13 @@ import { APIFeatures } from '../utils/apiFeatures.js';
 // * get all the tours from collection
 const getTour = async (req, res) => {
   try {
-    const apiFeatures = await new APIFeatures(Tour.find(), req.query)
+    const features = new APIFeatures(Tour.find(), req.query)
       .filter()
       .sort()
       .fields()
-      .page().query;
-    // const toursData = await apiFeatures.query;
-    const toursData = apiFeatures;
+      .paginate();
+    const toursData = await features.query;
+    // const toursData = apiFeatures;
 
     res.status(200).json({
       status: 'success',
@@ -31,7 +31,7 @@ const getTour = async (req, res) => {
   }
 };
 
-// * get single the tours from collection specified by id
+// * get single the tours from collection specified   by id
 const getSingleTour = async (req, res) => {
   try {
     console.log(req.params.id);
@@ -124,11 +124,12 @@ const getTourStats = async (req, res) => {
   try {
     const stats = await Tour.aggregate([
       {
-        $match: { ratingsAverage: { $gte: 4.6 } },
+        $match: { ratingsAverage: { $gte: 1.0 } },
       },
       {
         $group: {
           _id: '$difficulty',
+          numTours: { $sum: 1 },
           avgPrice: { $avg: '$price' },
           avgRating: { $avg: '$ratingsAverage' },
           minPrice: { $min: '$price' },
@@ -152,6 +153,51 @@ const getTourStats = async (req, res) => {
   }
 };
 
+const getMonthlyPlan = async (req, res) => {
+  try {
+    const year = req.params.year * 1;
+    // console.log(typeof year);
+    const plan = await Tour.aggregate([
+      {
+        $unwind: '$startDates',
+      },
+      {
+        $match: {
+          startDates: {
+            $gte: new Date(`${year}-01-01`),
+            $lte: new Date(`${year}-12-31`),
+          },
+        },
+      },
+      {
+        $group: {
+          _id: { $month: '$startDates' },
+          numTours: { $sum: 1 },
+          tours: { $push: '$name' },
+          // gg: { month: '$_id' },
+        },
+      },
+      {
+        $addFields: { month: '$_id' },
+      },
+    ]);
+    res.status(200).json({
+      status: 'success',
+      time: req.reqTime,
+      results: plan.length,
+      data: {
+        plans: plan,
+      },
+    });
+  } catch (err) {
+    console.log('Error here:😶‍🌫️', err);
+    res.status(204).json({
+      status: 'success',
+      message: err,
+    });
+  }
+};
+
 export {
   getTour,
   getSingleTour,
@@ -159,4 +205,5 @@ export {
   updateTour,
   deleteTour,
   getTourStats,
+  getMonthlyPlan,
 };
