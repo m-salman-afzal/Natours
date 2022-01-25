@@ -3,6 +3,7 @@ import morgan from 'morgan';
 
 import { tourRouter } from './routes/tourRoutes.js';
 import { userRouter } from './routes/userRoutes.js';
+
 import { AppError } from './utils/appError.js';
 import { routeError } from './controllers/errorController.js';
 
@@ -25,10 +26,11 @@ app.use('/api/v1/tours', tourRouter);
 app.use('/api/v1/users', userRouter);
 
 // * handeling the routes that are not available
-
 app.all('*', (req, res, next) => {
   next(new AppError(`unable to find ${req.originalUrl}`, 404));
 });
 
+// * global error handler middleware
 app.use(routeError);
+
 export { app };

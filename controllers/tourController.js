@@ -1,6 +1,7 @@
 import { Tour } from '../models/tourModels.js';
 
 import { APIFeatures } from '../utils/apiFeatures.js';
+import { AppError } from '../utils/appError.js';
 import { catchAsync } from '../utils/catchAsync.js';
 
 // * get all the tours from collection
@@ -25,8 +26,13 @@ const getTour = catchAsync(async (req, res, next) => {
 
 // * get single the tours from collection specified   by id
 const getSingleTour = catchAsync(async (req, res, next) => {
-  console.log(req.params.id);
   const singleTour = await Tour.findById(req.params.id);
+
+  // * check if the valid id has been passed
+  if (!singleTour) {
+    return next(new AppError(`No tour with ID=${req.params.id}`, 404));
+  }
+
   res.status(200).json({
     status: 'success',
     time: req.reqTime,
@@ -56,6 +62,11 @@ const updateTour = catchAsync(async (req, res, next) => {
     runValidators: true,
   });
 
+  // * check if the valid id has been passed
+  if (!updatedTour) {
+    return next(new AppError(`No tour with ID=${req.params.id}`, 404));
+  }
+
   res.status(201).json({
     status: 'success',
     time: req.reqTime,
@@ -67,9 +78,15 @@ const updateTour = catchAsync(async (req, res, next) => {
 
 // * delete a tour doc
 const deleteTour = catchAsync(async (req, res, next) => {
-  await Tour.findByIdAndDelete(req.params.id, (err) => {
+  const deletedTour = await Tour.findByIdAndDelete(req.params.id, (err) => {
     console.log(err);
   });
+
+  // * check if the valid id has been passed
+  if (!deletedTour) {
+    return next(new AppError(`No tour with ID=${req.params.id}`, 404));
+  }
+
   res.status(204).json({
     status: 'success',
     time: req.reqTime,
