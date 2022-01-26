@@ -37,6 +37,8 @@ const server = app.listen(port, ip, () => {
 -----------------------------`);
 });
 
+// server.keepAliveTimeout = 0;
+
 // * define some unhandeled promises and exceptions
 process.on('unhandledRejection', (err) => {
   console.log(`Error Name: ${err.name}\nError Message: ${err.message}`);

@@ -37,16 +37,22 @@ const routeError = (err, req, res, next) => {
   if (process.env.NODE_ENV === 'development') {
     sendErrorDev(err, res);
   } else if (process.env.NODE_ENV === 'production') {
+    // * define different types of errors that could occur as operational errors
     // TODO Object copying is not working as expected. Ask about it.
     // let error = { ...err };
     // let error = Object.assign({}, err);
     let error = JSON.parse(JSON.stringify(err));
 
+    // TODO Write error handling for duplicate docs
+    // TODO Write error handling for wrong inputs given in patch method
+    // * Cast type error for when id in url is not of correct format
     if (error.name === 'CastError') {
       error = handleCastTypeError(error);
     }
+
+    // *
     sendErrorProd(error, res);
-    console.log(err, '\n-----------------------------------------', error);
+    // console.log(err, '\n-----------------------------------------', error);
   }
 };
 
