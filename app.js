@@ -22,8 +22,8 @@ app.use((req, res, next) => {
 });
 
 // * mounting the above made seperate routers as middlewares
-app.use('/api/v1/tours', tourRouter);
 app.use('/api/v1/users', userRouter);
+app.use('/api/v1/tours', tourRouter);
 
 // * handeling the routes that are not available
 app.all('*', (req, res, next) => {

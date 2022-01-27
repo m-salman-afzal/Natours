@@ -5,7 +5,8 @@ import * as authController from '../controllers/authController.js';
 //define a seperate router for each route
 const userRouter = express.Router();
 
-userRouter.post('/signup', authController.signUp);
+userRouter.route('/signup').post(authController.signUp);
+userRouter.route('/login').post(authController.login);
 
 userRouter.route('/').get(userController.getUser).post(userController.addUser);
 userRouter
