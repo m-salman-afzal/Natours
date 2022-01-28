@@ -102,4 +102,18 @@ const protect = catchAsync(async (req, res, next) => {
   next();
 });
 
-export { signUp, login, protect };
+const restrictTo = (...roles) => {
+  return (req, res, next) => {
+    if (!roles.includes(req.user.role)) {
+      return next(
+        new AppError(
+          'Permission denied! Role not assigned for current operation',
+          403
+        )
+      );
+    }
+    next();
+  };
+};
+
+export { signUp, login, protect, restrictTo };

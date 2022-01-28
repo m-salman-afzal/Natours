@@ -19,7 +19,11 @@ tourRouter
   .route('/:id')
   .get(tourController.getSingleTour)
   .patch(tourController.updateTour)
-  .delete(tourController.deleteTour);
+  .delete(
+    authController.protect,
+    authController.restrictTo('admin', 'lead-guide'),
+    tourController.deleteTour
+  );
 
 // ! Below methods are longer and should not be used
 // //Send data from the server to the client side

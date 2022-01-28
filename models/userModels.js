@@ -7,13 +7,14 @@ const userSchema = new mongoose.Schema({
   name: {
     type: String,
     required: [true, 'Usermust have a name'],
-    unique: true,
+    unique: false,
     trim: true,
   },
   email: {
     type: String,
     required: [true, 'User must have a email'],
     trim: true,
+    unique: true,
     validate: [validator.isEmail, 'Not a valid email'],
   },
   photo: {
@@ -36,6 +37,11 @@ const userSchema = new mongoose.Schema({
     },
   },
   passwordChangedAt: Date,
+  role: {
+    type: String,
+    enum: ['admin', 'lead-guide', 'guide', 'user'],
+    default: 'user',
+  },
 });
 
 // * make a document middleware that runs before saving the document due to save hook defined in pre and post methods
