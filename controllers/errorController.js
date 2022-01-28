@@ -4,6 +4,15 @@ const handleCastTypeError = (err) => {
   const message = `Invalid ${err.path}: ${err.value}`;
   return new AppError(message, 400);
 };
+
+const handleJWTError = () => {
+  return new AppError('Invalid Token. Login again!', 401);
+};
+
+const handleTokenExpiredError = () => {
+  return new AppError('Token Expired. Login again!', 401);
+};
+
 const sendErrorDev = (err, res) => {
   console.error('ErrorDev 😨😨');
   res.status(err.statusCode).json({
@@ -38,7 +47,6 @@ const routeError = (err, req, res, next) => {
     sendErrorDev(err, res);
   } else if (process.env.NODE_ENV === 'production') {
     // * define different types of errors that could occur as operational errors
-    // TODO Object copying is not working as expected. Ask about it.
     let error;
     // let error = Object.assign({}, err);
     // let error = JSON.parse(JSON.stringify(err));
@@ -50,10 +58,16 @@ const routeError = (err, req, res, next) => {
       error = handleCastTypeError(err);
     }
 
-    // *
+    // * JWT error to cater for when sent token is not correct
+    if (err.name === 'JsonWebTokenError') {
+      error = handleJWTError();
+    }
+
+    if (err.name === 'TokenExpiredError') {
+      error = handleTokenExpiredError();
+    }
+
     sendErrorProd(error, res);
-    console.log(err, '\n-----------------------------------------', error);
-    // console.log(error.name)
   }
 };
 

@@ -1,5 +1,6 @@
 import express from 'express';
 import * as tourController from '../controllers/tourController.js';
+import * as authController from '../controllers/authController.js';
 
 // * define a seperate router for each route
 const tourRouter = express.Router();
@@ -9,7 +10,10 @@ const tourRouter = express.Router();
 tourRouter.route('/tour-stats').get(tourController.getTourStats);
 tourRouter.route('/monthly-plan/:year').get(tourController.getMonthlyPlan);
 
-tourRouter.route('/').get(tourController.getTour).post(tourController.addTour);
+tourRouter
+  .route('/')
+  .get(authController.protect, tourController.getTour)
+  .post(tourController.addTour);
 
 tourRouter
   .route('/:id')

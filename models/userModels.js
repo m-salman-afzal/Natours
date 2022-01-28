@@ -7,7 +7,7 @@ const userSchema = new mongoose.Schema({
   name: {
     type: String,
     required: [true, 'Usermust have a name'],
-    unique: false,
+    unique: true,
     trim: true,
   },
   email: {
@@ -35,6 +35,7 @@ const userSchema = new mongoose.Schema({
       message: 'Passwords are not same',
     },
   },
+  passwordChangedAt: Date,
 });
 
 // * make a document middleware that runs before saving the document due to save hook defined in pre and post methods
@@ -51,6 +52,19 @@ userSchema.methods.correctPassword = async (
   userPassword
 ) => {
   return await bcrypt.compare(candidatePassword, userPassword);
+};
+
+userSchema.methods.changedPasswordAfter = function (jwtTimeStamp) {
+  if (this.passwordChangedAt) {
+    const changedTimeStamp = parseInt(
+      this.passwordChangedAt.getTime() / 1000,
+      10
+    );
+
+    return jwtTimeStamp < changedTimeStamp;
+  }
+
+  return false;
 };
 
 // * connect schema to model
