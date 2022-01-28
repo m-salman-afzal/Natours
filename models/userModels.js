@@ -1,6 +1,7 @@
 import mongoose from 'mongoose';
 import validator from 'validator';
 import bcrypt from 'bcrypt';
+import crypto from 'crypto';
 
 // * start a new schema
 const userSchema = new mongoose.Schema({
@@ -42,6 +43,10 @@ const userSchema = new mongoose.Schema({
     enum: ['admin', 'lead-guide', 'guide', 'user'],
     default: 'user',
   },
+  passwordResetToken: {
+    type: String,
+  },
+  passwordResetExpires: Date,
 });
 
 // * make a document middleware that runs before saving the document due to save hook defined in pre and post methods
@@ -60,6 +65,7 @@ userSchema.methods.correctPassword = async (
   return await bcrypt.compare(candidatePassword, userPassword);
 };
 
+// * method to check if we have changed password after the initial creation of token
 userSchema.methods.changedPasswordAfter = function (jwtTimeStamp) {
   if (this.passwordChangedAt) {
     const changedTimeStamp = parseInt(
@@ -71,6 +77,20 @@ userSchema.methods.changedPasswordAfter = function (jwtTimeStamp) {
   }
 
   return false;
+};
+
+// * method to create the password reset token
+userSchema.methods.createPasswordResetToken = function () {
+  const resetToken = crypto.randomBytes(32).toString('hex');
+
+  this.passwordResetToken = crypto
+    .createHash('sha256')
+    .update(resetToken)
+    .digest('hex');
+
+  this.passwordResetExpires = Date.now() + 10 * 60 * 1000;
+
+  return resetToken;
 };
 
 // * connect schema to model
