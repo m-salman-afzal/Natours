@@ -98,7 +98,7 @@ const protect = catchAsync(async (req, res, next) => {
   }
   req.user = currentUser;
 
-  // * finaly grant access
+  // * finaly grant access to the user to the required tour by authenticating them
   next();
 });
 
