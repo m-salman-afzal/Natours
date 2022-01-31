@@ -21,6 +21,10 @@ userRouter
 userRouter
   .route('/updateMe')
   .patch(authController.protect, userController.updateMe);
+
+userRouter
+  .route('/deleteMe')
+  .delete(authController.protect, userController.deleteMe);
 userRouter.route('/').get(userController.getUser).post(userController.addUser);
 
 userRouter

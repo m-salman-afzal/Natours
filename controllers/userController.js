@@ -77,4 +77,20 @@ const updateMe = catchAsync(async (req, res, next) => {
     },
   });
 });
-export { getUser, getSingleUser, addUser, updateUser, deleteUser, updateMe };
+
+const deleteMe = catchAsync(async (req, res, next) => {
+  await User.findByIdAndUpdate(req.user.id, { active: false });
+  res.status(200).json({
+    status: 'success',
+  });
+});
+
+export {
+  getUser,
+  getSingleUser,
+  addUser,
+  updateUser,
+  deleteUser,
+  updateMe,
+  deleteMe,
+};

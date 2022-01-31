@@ -73,6 +73,12 @@ userSchema.pre('save', function (next) {
   next();
 });
 
+// * display only the users that have not been marked for deletion
+userSchema.pre(/^find/, function (next) {
+  this.find({ active: { $ne: false } });
+  next();
+});
+
 // * define a method that is available on all the docs of collection
 userSchema.methods.correctPassword = async (
   candidatePassword,
