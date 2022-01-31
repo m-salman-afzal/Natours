@@ -21,6 +21,18 @@ const signToken = (id) => {
   );
 };
 
+const createSendToken = (user, statusCode, res, req) => {
+  const token = signToken(user._id);
+  res.status(statusCode).json({
+    status: 'success',
+    time: req.reqtime,
+    token: token,
+    data: {
+      user: user,
+    },
+  });
+};
+
 const signUp = catchAsync(async (req, res, next) => {
   // const newUser = await User.create({
   //   name: req.body.name,
@@ -30,15 +42,7 @@ const signUp = catchAsync(async (req, res, next) => {
   // });
 
   const newUser = await User.create(req.body);
-  const token = signToken(newUser._id);
-  res.status(200).json({
-    status: 'success',
-    time: req.reqtime,
-    token: token,
-    data: {
-      user: newUser,
-    },
-  });
+  createSendToken(newUser, 201, res, req);
 });
 
 const login = catchAsync(async (req, res, next) => {
@@ -58,13 +62,7 @@ const login = catchAsync(async (req, res, next) => {
     return next(new AppError('Incorrect Email or Password', 401));
   }
 
-  const token = signToken(user._id);
-
-  res.status(201).json({
-    status: 'success',
-    time: req.reqtime,
-    token: token,
-  });
+  createSendToken(user, 200, res, req);
 });
 
 const protect = catchAsync(async (req, res, next) => {
@@ -159,6 +157,7 @@ const forgotPassword = catchAsync(async (req, res, next) => {
     return next(new AppError("Couldn't send email. Try again later", 500));
   }
 });
+
 const resetPassword = catchAsync(async (req, res, next) => {
   // * Get the user based on token
   const hashedToken = crypto
@@ -181,12 +180,27 @@ const resetPassword = catchAsync(async (req, res, next) => {
   user.passwordResetExpires = undefined;
   await user.save();
 
-  const token = signToken(user._id);
-  res.status(200).json({
-    status: 'success',
-    time: req.reqtime,
-    token: token,
-  });
+  createSendToken(user, 200, res, req);
 });
 
-export { signUp, login, protect, restrictTo, forgotPassword, resetPassword };
+const updatePassword = catchAsync(async (req, res, next) => {
+  const user = await User.findById(req.user.id).select('+password');
+
+  if (!(await user.correctPassword(req.body.passwordCurrent, user.password))) {
+    return next(new AppError('Current Password wrong', 401));
+  }
+  user.password = req.body.password;
+  user.passwordConfirm = req.body.passwordConfirm;
+  await user.save();
+  createSendToken(user, 200, res, req);
+});
+
+export {
+  signUp,
+  login,
+  protect,
+  restrictTo,
+  forgotPassword,
+  resetPassword,
+  updatePassword,
+};
