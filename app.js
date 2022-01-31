@@ -1,5 +1,6 @@
 import express from 'express';
 import morgan from 'morgan';
+import rateLimit from 'express-rate-limit';
 
 import { tourRouter } from './routes/tourRoutes.js';
 import { userRouter } from './routes/userRoutes.js';
@@ -12,6 +13,14 @@ const app = express();
 // if (process.env.NODE_ENV === 'development') {
 app.use(morgan('dev'));
 // }
+
+const limitedRate = rateLimit({
+  max: 10,
+  windowMs: 60 * 60 * 1000,
+  message: 'Too many login attempts',
+});
+
+app.use('/api/v1', limitedRate);
 
 app.use(express.json());
 app.use(express.static('./starter/public/'));
