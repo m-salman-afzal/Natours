@@ -57,6 +57,13 @@ userSchema.pre('save', async function (next) {
   next();
 });
 
+// * Make the changed password at functionality so that the user can't login with the previous token
+userSchema.pre('save', function (next) {
+  if (!this.isModified('password') || this.isNew) return next();
+  this.passwordChangedAt = Date.now() - 1000;
+  next();
+});
+
 // * define a method that is available on all the docs of collection
 userSchema.methods.correctPassword = async (
   candidatePassword,
