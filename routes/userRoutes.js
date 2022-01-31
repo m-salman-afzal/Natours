@@ -7,14 +7,22 @@ import { User } from '../models/userModels.js';
 const userRouter = express.Router();
 
 userRouter.route('/signup').post(authController.signUp);
+
 userRouter.route('/login').post(authController.login);
+
 userRouter.route('/forgotPassword').post(authController.forgotPassword);
+
 userRouter.route('/resetPassword/:token').patch(authController.resetPassword);
+
 userRouter
   .route('/updatePassword')
   .patch(authController.protect, authController.updatePassword);
 
+userRouter
+  .route('/updateMe')
+  .patch(authController.protect, userController.updateMe);
 userRouter.route('/').get(userController.getUser).post(userController.addUser);
+
 userRouter
   .route('/:id')
   .get(userController.getSingleUser)

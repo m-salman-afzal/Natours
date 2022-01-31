@@ -11,6 +11,11 @@ const userSchema = new mongoose.Schema({
     unique: false,
     trim: true,
   },
+  role: {
+    type: String,
+    enum: ['admin', 'lead-guide', 'guide', 'user'],
+    default: 'user',
+  },
   email: {
     type: String,
     required: [true, 'User must have a email'],
@@ -37,16 +42,20 @@ const userSchema = new mongoose.Schema({
       message: 'Passwords are not same',
     },
   },
-  passwordChangedAt: Date,
-  role: {
-    type: String,
-    enum: ['admin', 'lead-guide', 'guide', 'user'],
-    default: 'user',
+  passwordChangedAt: {
+    type: Date,
   },
   passwordResetToken: {
     type: String,
   },
-  passwordResetExpires: Date,
+  passwordResetExpires: {
+    type: Date,
+  },
+  active: {
+    type: Boolean,
+    default: true,
+    select: false,
+  },
 });
 
 // * make a document middleware that runs before saving the document due to save hook defined in pre and post methods
