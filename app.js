@@ -1,6 +1,7 @@
 import express from 'express';
 import morgan from 'morgan';
 import rateLimit from 'express-rate-limit';
+import helmet from 'helmet';
 
 import { tourRouter } from './routes/tourRoutes.js';
 import { userRouter } from './routes/userRoutes.js';
@@ -9,6 +10,8 @@ import { AppError } from './utils/appError.js';
 import { routeError } from './controllers/errorController.js';
 
 const app = express();
+
+app.use(helmet());
 
 // if (process.env.NODE_ENV === 'development') {
 app.use(morgan('dev'));
