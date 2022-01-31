@@ -4,6 +4,7 @@ import rateLimit from 'express-rate-limit';
 import helmet from 'helmet';
 import ExpressMongoSanitize from 'express-mongo-sanitize';
 import xss from 'xss-clean';
+import hpp from 'hpp';
 
 import { tourRouter } from './routes/tourRoutes.js';
 import { userRouter } from './routes/userRoutes.js';
@@ -37,6 +38,13 @@ app.use(ExpressMongoSanitize());
 
 // * Data sanitization against XSS'
 app.use(xss());
+
+// * prevent parameter pollution
+app.use(
+  hpp({
+    whitelist: ['duration'],
+  })
+);
 
 app.use((req, res, next) => {
   req.reqTime = new Date().toISOString();
